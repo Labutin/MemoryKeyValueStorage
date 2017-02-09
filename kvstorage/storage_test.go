@@ -44,6 +44,21 @@ func TestStorage_Remove(t *testing.T) {
 	require.Nil(t, v)
 }
 
+func TestStorage_Update(t *testing.T) {
+	storage := NewKVStorage(10)
+	storage.Set("test123", 123, 0)
+	v, ok := storage.Get("test123")
+	require.True(t, ok)
+	require.Equal(t, 123, v)
+	err := storage.Update("notexists", 1)
+	require.Error(t, err)
+	err = storage.Update("test123", 1)
+	require.NoError(t, err)
+	v, ok = storage.Get("test123")
+	require.True(t, ok)
+	require.Equal(t, 1, v)
+}
+
 func TestKVStorage_GetListElement(t *testing.T) {
 	storage := NewKVStorage(10)
 	m := []int{0, 1, 2, 3, 4}

@@ -43,6 +43,14 @@ func (t *Storage) Set(key string, value interface{}, TTL time.Duration) {
 	}
 }
 
+func (t *Storage) Update(key string, value interface{}) error {
+	if !t.cmap.IsExist(key) {
+		return errors.New("Key not found")
+	}
+	t.cmap.Put(key, value)
+	return nil
+}
+
 func (t *Storage) Remove(key string) error {
 	return t.cmap.Remove(key)
 }
