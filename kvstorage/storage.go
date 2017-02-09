@@ -65,6 +65,7 @@ func (t *Storage) Get(key string) (interface{}, bool) {
 	return tValue, true
 }
 
+// GetListElement returns i-th element from List value
 func (t *Storage) GetListElement(key string, i int) (interface{}, error) {
 	value, ok := t.Get(key)
 	if !ok {
