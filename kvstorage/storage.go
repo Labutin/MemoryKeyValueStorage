@@ -32,6 +32,7 @@ func NewKVStorage(chunks uint32) *Storage {
 	return kvstorage
 }
 
+// Set stores value for given key and TTL
 func (t *Storage) Set(key string, value interface{}, TTL time.Duration) {
 	t.cmap.Put(key, value)
 	if TTL > 0 {
@@ -43,6 +44,7 @@ func (t *Storage) Set(key string, value interface{}, TTL time.Duration) {
 	}
 }
 
+// Update updates value for given key
 func (t *Storage) Update(key string, value interface{}) error {
 	if !t.cmap.IsExist(key) {
 		return errors.New("Key not found")
@@ -51,10 +53,12 @@ func (t *Storage) Update(key string, value interface{}) error {
 	return nil
 }
 
+// Remove deletes value for given key
 func (t *Storage) Remove(key string) error {
 	return t.cmap.Remove(key)
 }
 
+// Get returns value for given key
 func (t *Storage) Get(key string) (interface{}, bool) {
 	value, ok := t.cmap.Get(key)
 	if !ok {
@@ -79,4 +83,9 @@ func (t *Storage) GetListElement(key string, i int) (interface{}, error) {
 		}
 		return vl[i], nil
 	}
+}
+
+// Keys returns all keys in map
+func (t *Storage) Keys() []string {
+	return t.cmap.Keys()
 }

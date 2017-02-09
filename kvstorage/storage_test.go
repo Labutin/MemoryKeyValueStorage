@@ -3,6 +3,8 @@ package kvstorage
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"sort"
+	"strconv"
 	"testing"
 )
 
@@ -57,6 +59,20 @@ func TestStorage_Update(t *testing.T) {
 	v, ok = storage.Get("test123")
 	require.True(t, ok)
 	require.Equal(t, 1, v)
+}
+
+func TestStorage_Keys(t *testing.T) {
+	storage := NewKVStorage(10)
+	keys := []string{}
+	for i := 0; i < 100; i++ {
+		keys = append(keys, strconv.Itoa(i))
+		storage.Set(keys[i], i, 0)
+	}
+	retKeys := storage.Keys()
+	sort.Strings(retKeys)
+	sort.Strings(keys)
+	require.Equal(t, keys, retKeys)
+
 }
 
 func TestKVStorage_GetListElement(t *testing.T) {
