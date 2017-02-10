@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func MakeListFromInts(m []int) List {
@@ -25,7 +26,7 @@ func MakeDictFromMap(m map[string]int) Dict {
 }
 
 func TestStorage_GetSet(t *testing.T) {
-	storage := NewKVStorage(10)
+	storage := NewKVStorage(10, true)
 	storage.Set("test123", 123, 0)
 	storage.Set("test124", 124, 0)
 	v, ok := storage.Get("test123")
@@ -44,7 +45,7 @@ func TestStorage_GetSet(t *testing.T) {
 }
 
 func TestStorage_Remove(t *testing.T) {
-	storage := NewKVStorage(10)
+	storage := NewKVStorage(10, true)
 	storage.Set("test123", 123, 0)
 	storage.Set("test124", 124, 0)
 	v, ok := storage.Get("test123")
@@ -63,7 +64,7 @@ func TestStorage_Remove(t *testing.T) {
 }
 
 func TestStorage_Update(t *testing.T) {
-	storage := NewKVStorage(10)
+	storage := NewKVStorage(10, true)
 	storage.Set("test123", 123, 0)
 	v, ok := storage.Get("test123")
 	require.True(t, ok)
@@ -78,7 +79,7 @@ func TestStorage_Update(t *testing.T) {
 }
 
 func TestStorage_Keys(t *testing.T) {
-	storage := NewKVStorage(10)
+	storage := NewKVStorage(10, true)
 	keys := []string{}
 	for i := 0; i < 100; i++ {
 		keys = append(keys, strconv.Itoa(i))
@@ -92,7 +93,7 @@ func TestStorage_Keys(t *testing.T) {
 }
 
 func TestKVStorage_GetListElement(t *testing.T) {
-	storage := NewKVStorage(10)
+	storage := NewKVStorage(10, true)
 	m := []int{0, 1, 2, 3, 4}
 	storage.Set("test", MakeListFromInts(m), 0)
 	v, ok := storage.Get("test")
@@ -113,7 +114,7 @@ func TestKVStorage_GetListElement(t *testing.T) {
 }
 
 func TestStorage_GetDictElement(t *testing.T) {
-	storage := NewKVStorage(10)
+	storage := NewKVStorage(10, true)
 	dict := map[string]int{}
 	dict["t1"] = 1
 	dict["t2"] = 2
@@ -127,4 +128,32 @@ func TestStorage_GetDictElement(t *testing.T) {
 	value, err = storage.GetDictElement("key", "absent")
 	require.Error(t, err)
 	require.Nil(t, value)
+}
+
+func TestStorage_TTL(t *testing.T) {
+	storage := NewKVStorage(10, false)
+	storage.ttlTimeout = time.Second * 1
+	storage.startTTLProcessing()
+	storage.Set("t1", 1, time.Microsecond*10)
+	storage.Set("t2", 2, time.Second*2)
+	v, ok := storage.Get("t1")
+	require.True(t, ok)
+	require.Equal(t, v, 1)
+	v, ok = storage.Get("t2")
+	require.True(t, ok)
+	require.Equal(t, v, 2)
+	time.Sleep(time.Second * 2)
+	v, ok = storage.Get("t1")
+	require.False(t, ok)
+	require.Nil(t, v)
+	v, ok = storage.Get("t2")
+	require.True(t, ok)
+	require.Equal(t, v, 2)
+	time.Sleep(time.Second * 2)
+	v, ok = storage.Get("t1")
+	require.False(t, ok)
+	require.Nil(t, v)
+	v, ok = storage.Get("t2")
+	require.False(t, ok)
+	require.Nil(t, v)
 }
