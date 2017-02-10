@@ -8,6 +8,22 @@ import (
 	"testing"
 )
 
+func MakeListFromInts(m []int) List {
+	result := make(List, len(m))
+	for i := 0; i < len(m); i++ {
+		result[i] = m[i]
+	}
+	return result
+}
+
+func MakeDictFromMap(m map[string]int) Dict {
+	res := Dict{}
+	for k, v := range m {
+		res[k] = v
+	}
+	return res
+}
+
 func TestStorage_GetSet(t *testing.T) {
 	storage := NewKVStorage(10)
 	storage.Set("test123", 123, 0)
@@ -94,4 +110,21 @@ func TestKVStorage_GetListElement(t *testing.T) {
 	v, err = storage.GetListElement("testNotList", 1)
 	assert.Error(t, err)
 	assert.Nil(t, v)
+}
+
+func TestStorage_GetDictElement(t *testing.T) {
+	storage := NewKVStorage(10)
+	dict := map[string]int{}
+	dict["t1"] = 1
+	dict["t2"] = 2
+	storage.Set("key", MakeDictFromMap(dict), 0)
+	value, err := storage.GetDictElement("key", "t1")
+	require.NoError(t, err)
+	require.Equal(t, 1, value)
+	value, err = storage.GetDictElement("key", "t2")
+	require.NoError(t, err)
+	require.Equal(t, 2, value)
+	value, err = storage.GetDictElement("key", "absent")
+	require.Error(t, err)
+	require.Nil(t, value)
 }

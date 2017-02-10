@@ -13,15 +13,6 @@ type Storage struct {
 }
 
 type List []interface{}
-
-func MakeListFromInts(m []int) List {
-	result := make(List, len(m))
-	for i := 0; i < len(m); i++ {
-		result[i] = m[i]
-	}
-	return result
-}
-
 type Dict map[string]interface{}
 
 func NewKVStorage(chunks uint32) *Storage {
@@ -82,6 +73,22 @@ func (t *Storage) GetListElement(key string, i int) (interface{}, error) {
 			return nil, errors.New("Out of bound")
 		}
 		return vl[i], nil
+	}
+}
+
+func (t *Storage) GetDictElement(key, dictKey string) (interface{}, error) {
+	value, ok := t.Get(key)
+	if !ok {
+		return nil, errors.New("Key not found")
+	}
+	if vl, ok := value.(Dict); !ok {
+		return nil, errors.New("Value not List")
+	} else {
+		if value, ok := vl[dictKey]; ok {
+			return value, nil
+		} else {
+			return nil, errors.New("Key in dictionary not found")
+		}
 	}
 }
 
