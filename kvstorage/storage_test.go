@@ -9,22 +9,6 @@ import (
 	"time"
 )
 
-func MakeListFromInts(m []int) List {
-	result := make(List, len(m))
-	for i := 0; i < len(m); i++ {
-		result[i] = m[i]
-	}
-	return result
-}
-
-func MakeDictFromMap(m map[string]int) Dict {
-	res := Dict{}
-	for k, v := range m {
-		res[k] = v
-	}
-	return res
-}
-
 func TestStorage_GetSet(t *testing.T) {
 	storage := NewKVStorage(10, true)
 	storage.Set("test123", 123, 0)
@@ -94,11 +78,11 @@ func TestStorage_Keys(t *testing.T) {
 
 func TestKVStorage_GetListElement(t *testing.T) {
 	storage := NewKVStorage(10, true)
-	m := []int{0, 1, 2, 3, 4}
-	storage.Set("test", MakeListFromInts(m), 0)
+	m := []interface{}{0, 1, 2, 3, 4}
+	storage.Set("test", m, 0)
 	v, ok := storage.Get("test")
 	assert.True(t, ok)
-	assert.Equal(t, MakeListFromInts(m), v)
+	assert.Equal(t, m, v)
 	for i := 0; i < 5; i++ {
 		val, err := storage.GetListElement("test", i)
 		require.Nil(t, err)
@@ -115,10 +99,10 @@ func TestKVStorage_GetListElement(t *testing.T) {
 
 func TestStorage_GetDictElement(t *testing.T) {
 	storage := NewKVStorage(10, true)
-	dict := map[string]int{}
+	dict := map[string]interface{}{}
 	dict["t1"] = 1
 	dict["t2"] = 2
-	storage.Set("key", MakeDictFromMap(dict), 0)
+	storage.Set("key", dict, 0)
 	value, err := storage.GetDictElement("key", "t1")
 	require.NoError(t, err)
 	require.Equal(t, 1, value)

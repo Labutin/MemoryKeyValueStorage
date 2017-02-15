@@ -19,13 +19,10 @@ type Storage struct {
 	ttlTimeout     time.Duration
 }
 
-type List []interface{}
-type Dict map[string]interface{}
-
 func NewKVStorage(chunks uint32, startTTLRemoval bool) *Storage {
 	kvstorage := &Storage{}
 	kvstorage.cmap = concurrent_map.NewCMap(chunks)
-	kvstorage.ttl = concurrent_map.NewCMap(10)
+	kvstorage.ttl = concurrent_map.NewCMap(chunks)
 	kvstorage.wg = &sync.WaitGroup{}
 	kvstorage.lastClearedTTL = time.Now().Unix() - 1
 	kvstorage.ttlTimeout = TTLTimeout
@@ -87,7 +84,7 @@ func (t *Storage) GetListElement(key string, i int) (interface{}, error) {
 	if !ok {
 		return nil, errors.New("Key not found")
 	}
-	if vl, ok := value.(List); !ok {
+	if vl, ok := value.([]interface{}); !ok {
 		return nil, errors.New("Value not List")
 	} else {
 		if len(vl) <= i {
@@ -102,8 +99,8 @@ func (t *Storage) GetDictElement(key, dictKey string) (interface{}, error) {
 	if !ok {
 		return nil, errors.New("Key not found")
 	}
-	if vl, ok := value.(Dict); !ok {
-		return nil, errors.New("Value not List")
+	if vl, ok := value.(map[string]interface{}); !ok {
+		return nil, errors.New("Value not Dictionary")
 	} else {
 		if value, ok := vl[dictKey]; ok {
 			return value, nil
