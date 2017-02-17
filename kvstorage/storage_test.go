@@ -120,6 +120,7 @@ func TestStorage_TTL(t *testing.T) {
 	storage.startTTLProcessing()
 	storage.Set("t1", 1, time.Microsecond*10)
 	storage.Set("t2", 2, time.Second*2)
+	storage.Set("t3", 3, time.Second*2)
 	v, ok := storage.Get("t1")
 	require.True(t, ok)
 	require.Equal(t, v, 1)

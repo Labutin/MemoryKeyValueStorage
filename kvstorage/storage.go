@@ -58,7 +58,12 @@ func (t *Storage) Set(key string, value interface{}, TTL time.Duration) {
 	t.cmap.Put(key, value)
 	if TTL > 0 {
 		ttlKey := strconv.FormatInt(time.Now().Add(TTL).Unix(), 10)
-		ttlRecord := t.ensureTTLKey(ttlKey)
+		var ttlRecord *ttlValue
+		if value, ok := t.ttl.Get(ttlKey); !ok {
+			ttlRecord = t.ensureTTLKey(ttlKey)
+		} else {
+			ttlRecord = value.(*ttlValue)
+		}
 		ttlRecord.Lock()
 		ttlRecord.keys = append(ttlRecord.keys, key)
 		ttlRecord.Unlock()
