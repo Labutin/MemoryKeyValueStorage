@@ -26,6 +26,12 @@ func TestStorage_GetSet(t *testing.T) {
 	v, ok = storage.Get("test123")
 	require.True(t, ok)
 	require.Equal(t, 200, v)
+	storage.Set("test123", 200, time.Second*10)
+	v, ttl, ok := storage.GetWithTTL("test123")
+	require.True(t, ok)
+	require.Equal(t, 200, v)
+	// if second changed
+	require.True(t, (time.Now().Add(time.Second*10).Unix()-ttl) < 1)
 }
 
 func TestStorage_Remove(t *testing.T) {
