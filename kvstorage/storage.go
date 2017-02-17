@@ -60,7 +60,7 @@ func (t *Storage) ensureTTLKey(key string) *ttlValue {
 
 // Set stores value for given key and TTL
 func (t *Storage) Set(key string, value interface{}, TTL time.Duration) {
-	storeValue := cmapValue{value: value}
+	storeValue := &cmapValue{value: value}
 	whenToDelete := int64(0)
 	if TTL > 0 {
 		whenToDelete = time.Now().Add(TTL).Unix()
@@ -105,7 +105,7 @@ func (t *Storage) Get(key string) (interface{}, bool) {
 	if !ok {
 		return nil, false
 	}
-	tValue := value.(cmapValue)
+	tValue := value.(*cmapValue)
 
 	return tValue.value, true
 }
@@ -172,7 +172,7 @@ func (t *Storage) clearTTLExpiredRecords() {
 			keysToRemove := value.(*ttlValue).keys
 			for _, key := range keysToRemove {
 				if v, ok := t.cmap.Get(key); ok {
-					tv := v.(cmapValue)
+					tv := v.(*cmapValue)
 					if tv.ttl <= lastTime {
 						t.Remove(key)
 					}
