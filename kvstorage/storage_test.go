@@ -123,7 +123,7 @@ func TestStorage_GetDictElement(t *testing.T) {
 func TestStorage_TTL(t *testing.T) {
 	storage := NewKVStorage(10, false)
 	storage.ttlTimeout = time.Second * 1
-	storage.startTTLProcessing()
+	storage.StartTTLProcessing()
 	storage.Set("t1", 1, time.Microsecond*10)
 	storage.Set("t2", 2, time.Second*2)
 	storage.Set("t3", 3, time.Microsecond*10)
